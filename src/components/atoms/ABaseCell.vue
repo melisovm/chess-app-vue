@@ -23,11 +23,11 @@ defineProps({
     required: true,
   },
 })
+defineEmits(['click'])
 </script>
 
 <template>
-  <div class="cell" :class="color === 'white' ? 'bg-board-white' : 'bg-board-black'">
-    <!--    c{{ position.column }} r{{ position.row }} -->
+  <div class="cell" :class="color === 'white' ? 'bg-board-white' : 'bg-board-black'" @click="$emit('click')">
     <slot />
   </div>
 </template>

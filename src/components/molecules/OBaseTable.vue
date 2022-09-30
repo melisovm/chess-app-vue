@@ -1,31 +1,43 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue'
+import type { Ref } from 'vue'
+import { ref } from 'vue'
 import { ABaseCell, ABasePiece } from '../index'
 import { usePiecesStore } from '../../store/pieces'
-
-const columns = ref([1, 2, 3, 4, 5, 6, 7, 8])
-const rows = ref(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+import type { Piece } from '../../models/pieces'
 
 const piecesStore = usePiecesStore()
 
-onBeforeMount(() => {
-})
+const columns = ref([1, 2, 3, 4, 5, 6, 7, 8])
+const rows = ref(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+const activePiece = ref(null) as Ref<null | Piece>
 
 const pieceInCell = (column: number, row: number) => piecesStore
   .getAllPieces
   .find(({ position }) => position.column === column && position.row === row)
+
+const onClickCell = (column: number, row: number) => {
+  if (pieceInCell(column, row))
+    activePiece.value = pieceInCell(column, row) as Piece
+
+  else if (activePiece.value)
+    piecesStore.setPosition(activePiece.value, { column, row })
+
+  else
+    activePiece.value = pieceInCell(column, row) as Piece
+}
 </script>
 
 <template>
-  <div class="w-full h-full items-center justify-center flex">
+  <div class="w-full h-full flex-col items-center justify-center flex">
     <div class="table">
-      <div v-for="(row, rowIndex) in rows.reverse()" :key="row">
-        <div v-for="(column, columnIndex) in columns.reverse()" :key="column" class="relative">
+      <div v-for="(row, rowIndex) in rows" :key="row">
+        <div v-for="(column, columnIndex) in columns" :key="`${row}-${column}`" class="relative">
           <ABaseCell
             v-if="row && column"
             :name="`${row}${column}`"
             :position="{ column: columnIndex, row: rowIndex }"
             :color="(columnIndex + rowIndex) % 2 === 0 ? 'white' : 'black'"
+            @click="onClickCell(columnIndex, rowIndex)"
           >
             <template v-if="pieceInCell(columnIndex, rowIndex)">
               <ABasePiece
