@@ -1,9 +1,19 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { ABaseCell } from '../index'
+import { onBeforeMount, ref } from 'vue'
+import { ABaseCell, ABasePiece } from '../index'
+import { usePiecesStore } from '../../store/pieces'
 
 const columns = ref([1, 2, 3, 4, 5, 6, 7, 8])
 const rows = ref(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
+
+const piecesStore = usePiecesStore()
+
+onBeforeMount(() => {
+})
+
+const pieceInCell = (column: number, row: number) => piecesStore
+  .getAllPieces
+  .find(({ position }) => position.column === column && position.row === row)
 </script>
 
 <template>
@@ -11,7 +21,19 @@ const rows = ref(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'])
     <div class="table">
       <div v-for="(row, rowIndex) in rows.reverse()" :key="row">
         <div v-for="(column, columnIndex) in columns.reverse()" :key="column" class="relative">
-          <ABaseCell v-if="row && column" :color="(columnIndex + rowIndex) % 2 === 0 ? 'white' : 'black'" />
+          <ABaseCell
+            v-if="row && column"
+            :name="`${row}${column}`"
+            :position="{ column: columnIndex, row: rowIndex }"
+            :color="(columnIndex + rowIndex) % 2 === 0 ? 'white' : 'black'"
+          >
+            <template v-if="pieceInCell(columnIndex, rowIndex)">
+              <ABasePiece
+                :kind="pieceInCell(columnIndex, rowIndex).kind"
+                :type="pieceInCell(columnIndex, rowIndex).type"
+              />
+            </template>
+          </ABaseCell>
 
           <div
             v-if="columnIndex === columns.length - 1"
