@@ -16,6 +16,20 @@ export class King extends Piece {
     if (!super.canMove(target))
       return false
 
-    return ((target.y - this.cell.y) ** 2) + ((target.x - this.cell.x) ** 2) <= 2
+    const canMove = ((target.y - this.cell.y) ** 2) + ((target.x - this.cell.x) ** 2) <= 2
+
+    if (canMove) {
+      for (let i = 0; i < 7; i++) {
+        for (let j = 0; j < 7; j++) {
+          const selectedPiece = this.cell.board.cells[i][j].piece
+          if (!selectedPiece || selectedPiece.color === this.color)
+            continue
+
+          return !selectedPiece.canMove(target)
+        }
+      }
+    }
+
+    return canMove
   }
 }
